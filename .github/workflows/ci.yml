@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
@@ -25,3 +25,16 @@ jobs:
 
       - name: Run tests
         run: pytest -v
+
+  deploy:
+    needs: test
+
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger deployment
+        run: curl -X POST "$DEPLOY_HOOK_URL"
+        env:
+          DEPLOY_HOOK_URL: ${{ secrets.DEPLOY_HOOK_URL }}
